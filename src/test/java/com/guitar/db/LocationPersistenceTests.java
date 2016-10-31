@@ -17,43 +17,43 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-@ContextConfiguration(locations={"classpath:com/guitar/db/applicationTests-context.xml"})
+@ContextConfiguration(locations = {"classpath:com/guitar/db/applicationTests-context.xml"})
 @RunWith(SpringJUnit4ClassRunner.class)
 public class LocationPersistenceTests {
-	@Autowired
-	private LocationRepository locationRepository;
+    @Autowired
+    private LocationRepository locationRepository;
 
-	@PersistenceContext
-	private EntityManager entityManager;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Autowired
     private LocationJpaRepository locationJpaRepository;
 
-	@Test
-	@Transactional
-	public void testSaveAndGetAndDelete() throws Exception {
-		Location location = new Location();
-		location.setCountry("Canada");
-		location.setState("British Columbia");
-		location = locationRepository.create(location);
-		
-		// clear the persistence context so we don't return the previously cached location object
-		// this is a test only thing and normally doesn't need to be done in prod code
-		entityManager.clear();
+    @Test
+    @Transactional
+    public void testSaveAndGetAndDelete() throws Exception {
+        Location location = new Location();
+        location.setCountry("Canada");
+        location.setState("British Columbia");
+        location = locationRepository.create(location);
 
-		Location otherLocation = locationRepository.find(location.getId());
-		assertEquals("Canada", otherLocation.getCountry());
-		assertEquals("British Columbia", otherLocation.getState());
-		
-		//delete BC location now
-		locationRepository.delete(otherLocation);
-	}
+        // clear the persistence context so we don't return the previously cached location object
+        // this is a test only thing and normally doesn't need to be done in prod code
+        entityManager.clear();
 
-	@Test
-	public void testFindWithLike() throws Exception {
-		List<Location> locs = locationRepository.getLocationByStateName("New");
-		assertEquals(4, locs.size());
-	}
+        Location otherLocation = locationRepository.find(location.getId());
+        assertEquals("Canada", otherLocation.getCountry());
+        assertEquals("British Columbia", otherLocation.getState());
+
+        //delete BC location now
+        locationRepository.delete(otherLocation);
+    }
+
+    @Test
+    public void testFindWithLike() throws Exception {
+        List<Location> locs = locationRepository.getLocationByStateName("New");
+        assertEquals(4, locs.size());
+    }
 
     @Test
     public void testJpaFind() {
@@ -61,15 +61,15 @@ public class LocationPersistenceTests {
         assertNotNull(locations);
     }
 
-	@Test
-	@Transactional  //note this is needed because we will get a lazy load exception unless we are in a tx
-	public void testFindWithChildren() throws Exception {
-		Location arizona = locationRepository.find(3L);
-		assertEquals("United States", arizona.getCountry());
-		assertEquals("Arizona", arizona.getState());
-		
-		assertEquals(1, arizona.getManufacturers().size());
-		
-		assertEquals("Fender Musical Instruments Corporation", arizona.getManufacturers().get(0).getName());
-	}
+    @Test
+    @Transactional  //note this is needed because we will get a lazy load exception unless we are in a tx
+    public void testFindWithChildren() throws Exception {
+        Location arizona = locationRepository.find(3L);
+        assertEquals("United States", arizona.getCountry());
+        assertEquals("Arizona", arizona.getState());
+
+        assertEquals(1, arizona.getManufacturers().size());
+
+        assertEquals("Fender Musical Instruments Corporation", arizona.getManufacturers().get(0).getName());
+    }
 }
